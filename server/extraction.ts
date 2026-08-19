@@ -25,7 +25,7 @@ export async function extractLabel(imageBuffer: Buffer): Promise<LabelFields> {
     input: [{
       role: 'user',
       content: [
-        { type: 'input_text', text: 'Read this alcohol label. Extract only text visibly present. Preserve the capitalization of the government warning. Use null when a field is absent or unclear. Never infer or guess values.' },
+        { type: 'input_text', text: 'Read this alcohol label and extract only text visibly present. For brandName, copy the complete, most prominent product brand phrase word-for-word, including every word when it is split across multiple display lines. Do not shorten it. Do not use the class/type descriptor as the brand name. For classType, copy the beverage descriptor separately. Preserve the capitalization of the government warning. Use null when a field is absent or unclear. Never infer or guess values.' },
         { type: 'input_image', image_url: `data:image/jpeg;base64,${image.toString('base64')}`, detail: 'high' },
       ],
     }],
