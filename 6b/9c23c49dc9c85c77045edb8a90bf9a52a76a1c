@@ -1,0 +1,25 @@
+package.json
+  s_90974624b7e98c::t_8c65e9c6454d91 19
+  s_90974624b7e98c::t_ef6a54b1c5e084 11-13
+server/extraction.ts
+  s_90974624b7e98c::t_ef6a54b1c5e084 25
+  s_90974624b7e98c::t_4faad656cca9af 26
+package-lock.json
+  s_90974624b7e98c::t_6091c66999108d 15,36-38,1714,3513-3515,3517-3518,3521-3523,3525,3528-3536,4697
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "6b9c23c49dc9c85c77045edb8a90bf9a52a76a1c",
+  "prompts": {},
+  "sessions": {
+    "s_90974624b7e98c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01a30-9419-7fd2-ba30-5e24e7d22634",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    }
+  }
+}
