@@ -1,5 +1,6 @@
 import type { FieldResult, LabelFields, VerificationResult, Verdict } from '../shared/types.js';
-import { config } from '../config.js';
+
+const statutoryWarningText = 'GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RISK OF BIRTH DEFECTS. (2) CONSUMPTION OF ALCOHOLIC BEVERAGES IMPAIRS YOUR ABILITY TO DRIVE A CAR OR OPERATE MACHINERY, AND MAY CAUSE HEALTH PROBLEMS.';
 
 type Comparator = (applicationValue: string | null, labelValue: string | null) => Omit<FieldResult, 'field' | 'applicationValue' | 'labelValue'>;
 
@@ -70,7 +71,7 @@ function compareCountryOfOrigin(applicationValue: string | null, labelValue: str
 function compareGovernmentWarning(applicationValue: string | null, labelValue: string | null): Omit<FieldResult, 'field' | 'applicationValue' | 'labelValue'> {
   if (!labelValue) return { verdict: 'mismatch', reason: 'Government warning is missing from the label.' };
   if (!/^\s*GOVERNMENT WARNING\b/.test(labelValue)) return { verdict: 'mismatch', reason: 'GOVERNMENT WARNING must appear in capital letters.' };
-  const expected = applicationValue || config.statutoryWarningText;
+  const expected = applicationValue || statutoryWarningText;
   const expectedStatement = expected.replace(/^\s*government warning\s*:?[\s]*/i, '');
   const labelStatement = labelValue.replace(/^\s*GOVERNMENT WARNING\s*:?[\s]*/, '');
   if (normalize(expectedStatement) === normalize(labelStatement)) {
