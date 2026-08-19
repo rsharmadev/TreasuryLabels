@@ -22,6 +22,8 @@ export async function extractLabel(imageBuffer: Buffer): Promise<LabelFields> {
   const image = await sharp(imageBuffer).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
   const response = await client.responses.create({
     model: 'gpt-5.6-luna',
+    service_tier: 'fast',
+    reasoning: { effort: 'low' },
     input: [{
       role: 'user',
       content: [
