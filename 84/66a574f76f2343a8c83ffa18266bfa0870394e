@@ -1,0 +1,24 @@
+server/compare.ts
+  s_90974624b7e98c::t_d0a74d2c3fcd3d 3,74
+  s_90974624b7e98c::t_bc9ca42aa7599b 2
+server/extraction.ts
+  s_90974624b7e98c::t_8b1ccccc91a5ae 24
+tsconfig.json
+  s_90974624b7e98c::t_d0a74d2c3fcd3d 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8466a574f76f2343a8c83ffa18266bfa0870394e",
+  "prompts": {},
+  "sessions": {
+    "s_90974624b7e98c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01a30-9419-7fd2-ba30-5e24e7d22634",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    }
+  }
+}
