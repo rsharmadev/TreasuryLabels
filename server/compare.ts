@@ -68,11 +68,10 @@ function compareCountryOfOrigin(applicationValue: string | null, labelValue: str
   return { verdict: 'mismatch', reason: 'Country of origin does not match.' };
 }
 
-function compareGovernmentWarning(applicationValue: string | null, labelValue: string | null): Omit<FieldResult, 'field' | 'applicationValue' | 'labelValue'> {
+function compareGovernmentWarning(_applicationValue: string | null, labelValue: string | null): Omit<FieldResult, 'field' | 'applicationValue' | 'labelValue'> {
   if (!labelValue) return { verdict: 'mismatch', reason: 'Government warning is missing from the label.' };
   if (!/^\s*GOVERNMENT WARNING\b/.test(labelValue)) return { verdict: 'mismatch', reason: 'GOVERNMENT WARNING must appear in capital letters.' };
-  const expected = applicationValue || statutoryWarningText;
-  const expectedStatement = expected.replace(/^\s*government warning\s*:?[\s]*/i, '');
+  const expectedStatement = statutoryWarningText.replace(/^\s*government warning\s*:?[\s]*/i, '');
   const labelStatement = labelValue.replace(/^\s*GOVERNMENT WARNING\s*:?[\s]*/, '');
   if (normalize(expectedStatement) === normalize(labelStatement)) {
     return { verdict: 'match', reason: 'Government warning wording and capitalization match.' };

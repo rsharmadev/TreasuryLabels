@@ -28,6 +28,8 @@ const labels: Record<keyof LabelFields, string> = {
   governmentWarning: 'Government warning',
 };
 
+const applicationFields: (keyof LabelFields)[] = ['brandName', 'classType', 'alcoholContent', 'netContents', 'producerNameAddress', 'countryOfOrigin'];
+
 const samples = [sampleOne, sampleTwo, sampleThree] as LabelFields[];
 
 function value(value: string | null) {
@@ -108,7 +110,7 @@ function App() {
     <header><p className="eyebrow">Treasury labels</p><h1>Check a label</h1><p>Compare application details with what is printed on the bottle.</p></header>
     <div className="mode" role="group" aria-label="Check type"><button className={mode === 'single' ? 'selected' : ''} onClick={() => { setMode('single'); setRows([]); setMessage(''); }}>One label</button><button className={mode === 'batch' ? 'selected' : ''} onClick={() => { setMode('batch'); setRows([]); setMessage(''); }}>Many labels</button></div>
     {mode === 'single' ? <section className="single">
-      <div><div className="sample"><label>Example application<select value={sample} onChange={(event) => setSample(Number(event.target.value))}>{samples.map((item, index) => <option value={index} key={index}>{item.brandName}</option>)}</select></label><button className="secondary" onClick={loadSample}>Load sample</button></div><h2>Application details</h2><div className="form">{(Object.keys(labels) as (keyof LabelFields)[]).map((field) => <label key={field}>{labels[field]}<input value={application[field] || ''} onChange={(event) => setApplication({ ...application, [field]: event.target.value || null })} /></label>)}</div></div>
+      <div><div className="sample"><label>Example application<select value={sample} onChange={(event) => setSample(Number(event.target.value))}>{samples.map((item, index) => <option value={index} key={index}>{item.brandName}</option>)}</select></label><button className="secondary" onClick={loadSample}>Load sample</button></div><h2>Application details</h2><div className="form">{applicationFields.map((field) => <label key={field}>{labels[field]}<input value={application[field] || ''} onChange={(event) => setApplication({ ...application, [field]: event.target.value || null })} /></label>)}</div></div>
       <div className="upload"><h2>Label image</h2><label className="dropzone"><input type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} /><span>{image ? image.name : 'Choose an image'}</span><small>JPG, PNG, or HEIC</small></label></div>
     </section> : <section className="batch"><h2>Upload files</h2><div className="batch-inputs"><label className="dropzone"><input type="file" accept=".csv,text/csv" onChange={(event) => setCsv(event.target.files?.[0] || null)} /><span>{csv ? csv.name : 'Choose application CSV'}</span><small>Must include applicationId</small></label><label className="dropzone"><input type="file" accept="image/*" multiple onChange={(event) => setImages(Array.from(event.target.files || []))} /><span>{images.length ? `${images.length} image${images.length === 1 ? '' : 's'} selected` : 'Choose label images'}</span><small>Filename must match applicationId</small></label></div></section>}
     {message && <p className="message" role="alert">{message}</p>}
