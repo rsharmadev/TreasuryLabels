@@ -1,0 +1,42 @@
+client/src/main.tsx
+  s_a41ef0e3c41aad::t_ca4ef06e552436 35-41,53-57,94,104,111-125,165
+  s_a41ef0e3c41aad::t_a289ef05ac225a 43-47,91,100-103,105-110,126-127,163-164
+  s_a41ef0e3c41aad::t_91ca9f3c2e4475 32-34
+  s_a41ef0e3c41aad::t_3ff1f6f9752ee3 58-59
+README.md
+  s_828132ddd556e1::t_8ac0fe4ab6ea06 32-40,60
+  s_828132ddd556e1::t_1ef03855d034b5 17-18,76
+  s_828132ddd556e1::t_74bbf9a87e4a55 61
+server/index.ts
+  s_828132ddd556e1::t_e7f2a6058c11d5 3,79
+server/extraction.ts
+  s_828132ddd556e1::t_e7f2a6058c11d5 5-8,12,21,25,32,40
+server/compare.ts
+  s_828132ddd556e1::t_6ea90e6be0c782 76,82-84
+  s_828132ddd556e1::t_e7f2a6058c11d5 17-20,25-27
+  s_828132ddd556e1::t_c2709f9b96a5cd 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "3a2b07db4e5fa0fa13e82f2ebb7727d9de3d1414",
+  "prompts": {},
+  "sessions": {
+    "s_828132ddd556e1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0362a-4cb4-7b73-bc92-4423de0768e9",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    },
+    "s_a41ef0e3c41aad": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0243c-df0f-76c2-aace-9e7ef703ebfd",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    }
+  }
+}
