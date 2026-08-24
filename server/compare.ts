@@ -64,7 +64,7 @@ function compareProducerNameAddress(applicationValue: string | null, labelValue:
 
 function compareCountryOfOrigin(applicationValue: string | null, labelValue: string | null): Omit<FieldResult, 'field' | 'applicationValue' | 'labelValue'> {
   if (!applicationValue || !labelValue) return { verdict: 'needs_review', reason: 'Country of origin is missing from one side.' };
-  if (normalize(applicationValue) === normalize(labelValue)) return { verdict: 'match', reason: 'Country of origin matches.' };
+  if (normalizeCountry(applicationValue) === normalizeCountry(labelValue)) return { verdict: 'match', reason: 'Country of origin matches.' };
   return { verdict: 'mismatch', reason: 'Country of origin does not match.' };
 }
 
@@ -81,4 +81,8 @@ function compareGovernmentWarning(_applicationValue: string | null, labelValue: 
 
 function normalize(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function normalizeCountry(value: string): string {
+  return normalize(value).replace(/^productof/, '');
 }
