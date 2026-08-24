@@ -4,6 +4,8 @@ A standalone prototype that helps TTB compliance agents compare alcohol-label ar
 
 **Live app:** https://ttblabeling.up.railway.app
 
+![Treasury Labels single-label verification workflow](docs/label-check-screen.png)
+
 ## Run locally
 
 Requires Node.js 22+ and a Gemini API key.
