@@ -1,0 +1,27 @@
+client/src/styles.css
+  s_a41ef0e3c41aad::t_9663e724178974 43
+README.md
+  s_a41ef0e3c41aad::t_9663e724178974 38,40,47
+  s_a41ef0e3c41aad::t_d2120da8ea0d6a 1-37,39,41-46,48-71
+client/src/main.tsx
+  s_a41ef0e3c41aad::t_9663e724178974 9,52,102,115
+server/index.ts
+  s_a41ef0e3c41aad::t_8d9da28e4f01bc 92
+  s_a41ef0e3c41aad::t_9663e724178974 14,25-52,84,88-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "9df82e12826f017230ad9e598faa2404526f72a0",
+  "prompts": {},
+  "sessions": {
+    "s_a41ef0e3c41aad": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0243c-df0f-76c2-aace-9e7ef703ebfd",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    }
+  }
+}
