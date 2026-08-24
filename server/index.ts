@@ -11,6 +11,7 @@ import type { LabelFields } from '../shared/types.js';
 const app = express();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const fields: (keyof LabelFields)[] = ['brandName', 'classType', 'alcoholContent', 'netContents', 'producerNameAddress', 'countryOfOrigin', 'governmentWarning'];
+const productFields: (keyof LabelFields)[] = ['classType', 'alcoholContent', 'netContents'];
 
 app.use(cors());
 app.use(express.json());
@@ -19,6 +20,34 @@ function asApplication(value: unknown): LabelFields {
   const record = typeof value === 'string' ? JSON.parse(value) : value;
   if (!record || typeof record !== 'object') throw new Error('Application record is required.');
   return Object.fromEntries(fields.map((field) => [field, (record as Record<string, unknown>)[field] || null])) as LabelFields;
+}
+
+function sameText(left: string | null, right: string | null): boolean {
+  return Boolean(left && right && normalize(left) === normalize(right));
+}
+
+function sameAlcoholContent(left: string | null, right: string | null): boolean {
+  const leftAbv = left?.match(/\d+(?:\.\d+)?(?=\s*%)/)?.[0];
+  const rightAbv = right?.match(/\d+(?:\.\d+)?(?=\s*%)/)?.[0];
+  return Boolean(leftAbv && rightAbv && Number(leftAbv) === Number(rightAbv));
+}
+
+function normalize(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function identifyApplication(label: LabelFields, applications: { applicationId: string; fields: LabelFields }[]) {
+  if (!label.brandName) return { error: 'Could not read a brand name from this label.' };
+  const brandMatches = applications.filter((application) => sameText(application.fields.brandName, label.brandName));
+  const matches = brandMatches.filter((application) => productFields.every((field) => {
+    if (!label[field]) return true;
+    return field === 'alcoholContent'
+      ? sameAlcoholContent(application.fields[field], label[field])
+      : sameText(application.fields[field], label[field]);
+  }));
+  if (matches.length === 1) return { application: matches[0] };
+  if (!matches.length) return { error: `No application matches the extracted product details for ${label.brandName}.` };
+  return { error: `Multiple applications match the extracted product details for ${label.brandName}.` };
 }
 
 async function concurrentMap<T, R>(items: T[], limit: number, work: (item: T) => Promise<R>): Promise<R[]> {
@@ -52,16 +81,15 @@ app.post('/api/verify-batch', upload.fields([{ name: 'csv', maxCount: 1 }, { nam
     if (!csv || !images.length) throw new Error('A CSV and at least one image are required.');
     const records = parse(csv.buffer, { columns: true, skip_empty_lines: true, trim: true }) as Record<string, string>[];
     if (!records.every((record) => record.applicationId)) throw new Error('CSV must include an applicationId column.');
-    const applications = new Map(records.map((record) => [record.applicationId, asApplication(record)]));
+    const applications = records.map((record) => ({ applicationId: record.applicationId, fields: asApplication(record) }));
     const results = await concurrentMap(images, 3, async (image) => {
-      const applicationId = path.parse(image.originalname).name;
-      const application = applications.get(applicationId);
-      if (!application) return { applicationId, filename: image.originalname, error: 'No CSV application matches this filename.' };
       try {
         const label = await extractLabel(image.buffer);
-        return { applicationId, filename: image.originalname, result: compare(application, label), label };
+        const identified = identifyApplication(label, applications);
+        if ('error' in identified) return { filename: image.originalname, error: identified.error };
+        return { applicationId: identified.application.applicationId, filename: image.originalname, result: compare(identified.application.fields, label), label };
       } catch {
-        return { applicationId, filename: image.originalname, error: 'Could not check this image. Try a clearer image or retry it later.' };
+        return { filename: image.originalname, error: 'Could not check this image. Try a clearer image or retry it later.' };
       }
     });
     res.json({ results });

@@ -40,6 +40,7 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 table { width: 100%; border-collapse: collapse; text-align: left; font-family: Arial, sans-serif; font-size: 1.05rem; }
 th, td { border: 1px solid #444; padding: 13px; vertical-align: top; }
 th { background: #111; color: #fff; }
+.application-id { display: block; margin-top: 5px; color: #444; font-weight: 400; }
 .detail { padding: 16px; background: #f4f4f4; }
 .detail table { min-width: 720px; font-size: .95rem; }
 .badge { display: inline-block; text-transform: capitalize; font-weight: 800; padding: 5px 8px; border: 2px solid currentColor; white-space: nowrap; }
