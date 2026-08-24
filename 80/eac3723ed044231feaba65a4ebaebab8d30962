@@ -1,0 +1,21 @@
+.gitignore
+  s_828132ddd556e1::t_1ef03855d034b5 3-5
+.env.example
+  s_828132ddd556e1::t_1ef03855d034b5 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "80eac3723ed044231feaba65a4ebaebab8d30962",
+  "prompts": {},
+  "sessions": {
+    "s_828132ddd556e1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0362a-4cb4-7b73-bc92-4423de0768e9",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    }
+  }
+}
