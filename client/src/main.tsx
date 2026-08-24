@@ -29,11 +29,32 @@ const labels: Record<keyof LabelFields, string> = {
 };
 
 const applicationFields: (keyof LabelFields)[] = ['brandName', 'classType', 'alcoholContent', 'netContents', 'producerNameAddress', 'countryOfOrigin'];
+const canyonOakImage = new URL('../../samples/batch/labels/intake-07.png', import.meta.url).href;
+const harborGinImage = new URL('../../samples/harbor-dry-gin.png', import.meta.url).href;
+const sierraRosaImage = new URL('../../samples/batch/labels/archive-scan.png', import.meta.url).href;
+const batchCsv = new URL('../../samples/batch/applications.csv', import.meta.url).href;
+const batchImages = [
+  { url: canyonOakImage, name: 'intake-07.png' },
+  { url: new URL('../../samples/batch/labels/merchant-photo.png', import.meta.url).href, name: 'merchant-photo.png' },
+  { url: sierraRosaImage, name: 'archive-scan.png' },
+  { url: new URL('../../samples/batch/labels/unknown-item.png', import.meta.url).href, name: 'unknown-item.png' },
+];
 
-const samples = [sampleOne, sampleTwo, sampleThree] as LabelFields[];
+const samples = [
+  { application: sampleOne as LabelFields, imageUrl: canyonOakImage, imageName: 'canyon-oak-sample.png' },
+  { application: sampleTwo as LabelFields, imageUrl: harborGinImage, imageName: 'harbor-dry-gin-sample.png' },
+  { application: sampleThree as LabelFields, imageUrl: sierraRosaImage, imageName: 'sierra-rosa-sample.png' },
+];
 
 function value(value: string | null) {
   return value || '—';
+}
+
+async function fileFromUrl(url: string, name: string, type: string) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Could not load sample file.');
+  const blob = await response.blob();
+  return new File([blob], name, { type: blob.type || type });
 }
 
 function Results({ rows }: { rows: Row[] }) {
@@ -67,14 +88,43 @@ function App() {
   const [mode, setMode] = useState<'single' | 'batch'>('single');
   const [application, setApplication] = useState<LabelFields>(emptyApplication);
   const [image, setImage] = useState<File | null>(null);
+  const [sampleImageLoaded, setSampleImageLoaded] = useState(false);
   const [csv, setCsv] = useState<File | null>(null);
   const [images, setImages] = useState<File[]>([]);
+  const [batchSampleLoaded, setBatchSampleLoaded] = useState(false);
   const [sample, setSample] = useState(0);
   const [rows, setRows] = useState<Row[]>([]);
   const [message, setMessage] = useState('');
   const [working, setWorking] = useState(false);
 
-  const loadSample = () => setApplication(samples[sample]);
+  const loadSample = async () => {
+    const selected = samples[sample];
+    setApplication(selected.application);
+    try {
+      setImage(await fileFromUrl(selected.imageUrl, selected.imageName, 'image/png'));
+      setSampleImageLoaded(true);
+      setMessage('Sample application and label image loaded.');
+    } catch {
+      setImage(null);
+      setSampleImageLoaded(false);
+      setMessage('Sample application loaded, but its image could not be loaded.');
+    }
+  };
+
+  const loadBatchSample = async () => {
+    try {
+      const [sampleCsv, ...sampleImages] = await Promise.all([
+        fileFromUrl(batchCsv, 'applications.csv', 'text/csv'),
+        ...batchImages.map((image) => fileFromUrl(image.url, image.name, 'image/png')),
+      ]);
+      setCsv(sampleCsv);
+      setImages(sampleImages);
+      setBatchSampleLoaded(true);
+      setMessage('Sample batch loaded. Image filenames are deliberately unrelated to application IDs.');
+    } catch {
+      setMessage('Sample batch could not be loaded.');
+    }
+  };
 
   const verifySingle = async () => {
     if (!image) return setMessage('Choose one label image first.');
@@ -110,9 +160,9 @@ function App() {
     <header><p className="eyebrow">Treasury labels</p><h1>Check a label</h1><p>Compare application details with what is printed on the bottle.</p></header>
     <div className="mode" role="group" aria-label="Check type"><button className={mode === 'single' ? 'selected' : ''} onClick={() => { setMode('single'); setRows([]); setMessage(''); }}>One label</button><button className={mode === 'batch' ? 'selected' : ''} onClick={() => { setMode('batch'); setRows([]); setMessage(''); }}>Many labels</button></div>
     {mode === 'single' ? <section className="single">
-      <div><div className="sample"><label>Example application<select value={sample} onChange={(event) => setSample(Number(event.target.value))}>{samples.map((item, index) => <option value={index} key={index}>{item.brandName}</option>)}</select></label><button className="secondary" onClick={loadSample}>Load sample</button></div><h2>Application details</h2><div className="form">{applicationFields.map((field) => <label key={field}>{labels[field]}<input value={application[field] || ''} onChange={(event) => setApplication({ ...application, [field]: event.target.value || null })} /></label>)}</div></div>
-      <div className="upload"><h2>Label image</h2><label className="dropzone"><input type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} /><span>{image ? image.name : 'Choose an image'}</span><small>JPG, PNG, or HEIC</small></label></div>
-    </section> : <section className="batch"><h2>Upload files</h2><div className="batch-inputs"><label className="dropzone"><input type="file" accept=".csv,text/csv" onChange={(event) => setCsv(event.target.files?.[0] || null)} /><span>{csv ? csv.name : 'Choose application CSV'}</span><small>Must include applicationId</small></label><label className="dropzone"><input type="file" accept="image/*" multiple onChange={(event) => setImages(Array.from(event.target.files || []))} /><span>{images.length ? `${images.length} image${images.length === 1 ? '' : 's'} selected` : 'Choose label images'}</span><small>Image filenames can be anything</small></label></div></section>}
+      <div><div className="sample"><label>Example application<select value={sample} onChange={(event) => setSample(Number(event.target.value))}>{samples.map((item, index) => <option value={index} key={index}>{item.application.brandName}</option>)}</select></label><button className="secondary" onClick={loadSample}>Load sample</button></div><h2>Application details</h2><div className="form">{applicationFields.map((field) => <label key={field}>{labels[field]}<input value={application[field] || ''} onChange={(event) => setApplication({ ...application, [field]: event.target.value || null })} /></label>)}</div></div>
+      <div className="upload"><h2>Label image</h2><label className="dropzone"><input type="file" accept="image/*" onChange={(event) => { setImage(event.target.files?.[0] || null); setSampleImageLoaded(false); }} /><span>{image ? `${image.name} — click to replace` : 'Choose an image'}</span><small>{sampleImageLoaded ? 'Sample label loaded' : 'JPG, PNG, or HEIC'}</small></label></div>
+    </section> : <section className="batch"><div className="sample"><div><strong>Example batch</strong><small>One CSV and four label images</small></div><button className="secondary" onClick={loadBatchSample}>Load sample batch</button></div><h2>Upload files</h2><div className="batch-inputs"><label className="dropzone"><input type="file" accept=".csv,text/csv" onChange={(event) => { setCsv(event.target.files?.[0] || null); setBatchSampleLoaded(false); }} /><span>{csv ? `${csv.name} — click to replace` : 'Choose application CSV'}</span><small>{batchSampleLoaded ? 'Sample CSV loaded' : 'Must include applicationId'}</small></label><label className="dropzone"><input type="file" accept="image/*" multiple onChange={(event) => { setImages(Array.from(event.target.files || [])); setBatchSampleLoaded(false); }} /><span>{images.length ? `${images.length} image${images.length === 1 ? '' : 's'} selected — click to replace` : 'Choose label images'}</span><small>{batchSampleLoaded ? 'Sample labels loaded' : 'Image filenames can be anything'}</small></label></div></section>}
     {message && <p className="message" role="alert">{message}</p>}
     <button className="primary" disabled={working} onClick={mode === 'single' ? verifySingle : verifyBatch}>{working ? 'Checking labels…' : mode === 'single' ? 'Check label' : 'Check labels'}</button>
     <Results rows={rows} />

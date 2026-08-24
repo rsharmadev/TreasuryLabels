@@ -11,15 +11,20 @@ const comparators: Record<keyof LabelFields, Comparator> = {
   netContents: compareNetContents,
   producerNameAddress: compareProducerNameAddress,
   countryOfOrigin: compareCountryOfOrigin,
-  governmentWarning: compareGovernmentWarning,
+  governmentWarning: (_applicationValue, labelValue) => compareGovernmentWarning(labelValue),
 };
 
-export function compare(application: LabelFields, label: LabelFields): VerificationResult {
+export function compare(
+  application: LabelFields,
+  label: LabelFields & { governmentWarningPrefixBold?: boolean | null },
+): VerificationResult {
   const fields = (Object.keys(comparators) as (keyof LabelFields)[]).map((field) => ({
     field,
     applicationValue: application[field],
     labelValue: label[field],
-    ...comparators[field](application[field], label[field]),
+    ...(field === 'governmentWarning'
+      ? compareGovernmentWarning(label[field], label.governmentWarningPrefixBold)
+      : comparators[field](application[field], label[field])),
   }));
   const rollup: Verdict = fields.some(({ verdict }) => verdict === 'mismatch')
     ? 'mismatch'
@@ -68,13 +73,15 @@ function compareCountryOfOrigin(applicationValue: string | null, labelValue: str
   return { verdict: 'mismatch', reason: 'Country of origin does not match.' };
 }
 
-function compareGovernmentWarning(_applicationValue: string | null, labelValue: string | null): Omit<FieldResult, 'field' | 'applicationValue' | 'labelValue'> {
+function compareGovernmentWarning(labelValue: string | null, prefixIsBold?: boolean | null): Omit<FieldResult, 'field' | 'applicationValue' | 'labelValue'> {
   if (!labelValue) return { verdict: 'mismatch', reason: 'Government warning is missing from the label.' };
   if (!/^\s*GOVERNMENT WARNING\b/.test(labelValue)) return { verdict: 'mismatch', reason: 'GOVERNMENT WARNING must appear in capital letters.' };
   const expectedStatement = statutoryWarningText.replace(/^\s*government warning\s*:?[\s]*/i, '');
   const labelStatement = labelValue.replace(/^\s*GOVERNMENT WARNING\s*:?[\s]*/, '');
   if (normalize(expectedStatement) === normalize(labelStatement)) {
-    return { verdict: 'match', reason: 'Government warning wording and capitalization match.' };
+    if (prefixIsBold === true) return { verdict: 'match', reason: 'Government warning wording, capitalization, and bold prefix match.' };
+    if (prefixIsBold === false) return { verdict: 'mismatch', reason: 'GOVERNMENT WARNING: must appear in bold.' };
+    return { verdict: 'needs_review', reason: 'Government warning text matches, but bold formatting needs human review.' };
   }
   return { verdict: 'mismatch', reason: 'Government warning does not match.' };
 }

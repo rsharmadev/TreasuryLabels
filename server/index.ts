@@ -1,5 +1,6 @@
 import { parse } from 'csv-parse/sync';
 import cors from 'cors';
+import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
 import path from 'node:path';
@@ -75,7 +76,7 @@ app.post('/api/verify', upload.single('image'), async (req, res) => {
 
 app.post('/api/verify-batch', upload.fields([{ name: 'csv', maxCount: 1 }, { name: 'images', maxCount: 300 }]), async (req, res) => {
   try {
-    const uploads = req.files as { csv?: Express.Multer.File[]; images?: Express.Multer.File[] };
+    const uploads = (req.files ?? {}) as { csv?: Express.Multer.File[]; images?: Express.Multer.File[] };
     const csv = uploads.csv?.[0];
     const images = uploads.images ?? [];
     if (!csv || !images.length) throw new Error('A CSV and at least one image are required.');
