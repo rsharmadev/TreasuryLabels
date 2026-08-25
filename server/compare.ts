@@ -91,5 +91,5 @@ function normalize(value: string): string {
 }
 
 function normalizeCountry(value: string): string {
-  return normalize(value).replace(/^productof/, '');
+  return normalize(value).replace(/^productofthe|^productof/, '');
 }
