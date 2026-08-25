@@ -1,5 +1,4 @@
 import { parse } from 'csv-parse/sync';
-import cors from 'cors';
 import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
@@ -13,9 +12,28 @@ const app = express();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const fields: (keyof LabelFields)[] = ['brandName', 'classType', 'alcoholContent', 'netContents', 'producerNameAddress', 'countryOfOrigin', 'governmentWarning'];
 const productFields: (keyof LabelFields)[] = ['classType', 'alcoholContent', 'netContents'];
+const verificationRequests = new Map<string, { count: number; resetsAt: number }>();
+const rateLimitWindowMs = 60_000;
+const maxVerificationRequests = 10;
 
-app.use(cors());
+app.set('trust proxy', 1);
 app.use(express.json());
+
+function verificationRateLimit(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const now = Date.now();
+  const clientIp = req.ip ?? 'unknown';
+  const current = verificationRequests.get(clientIp);
+  if (!current || current.resetsAt <= now) {
+    verificationRequests.set(clientIp, { count: 1, resetsAt: now + rateLimitWindowMs });
+    return next();
+  }
+  if (current.count >= maxVerificationRequests) {
+    res.set('Retry-After', String(Math.ceil((current.resetsAt - now) / 1000)));
+    return res.status(429).json({ error: 'Too many verification requests. Please wait a minute and try again.' });
+  }
+  current.count += 1;
+  return next();
+}
 
 function asApplication(value: unknown): LabelFields {
   const record = typeof value === 'string' ? JSON.parse(value) : value;
@@ -63,7 +81,7 @@ async function concurrentMap<T, R>(items: T[], limit: number, work: (item: T) =>
   return results;
 }
 
-app.post('/api/verify', upload.single('image'), async (req, res) => {
+app.post('/api/verify', verificationRateLimit, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) throw new Error('One label image is required.');
     const application = asApplication(req.body.application);
@@ -74,7 +92,7 @@ app.post('/api/verify', upload.single('image'), async (req, res) => {
   }
 });
 
-app.post('/api/verify-batch', upload.fields([{ name: 'csv', maxCount: 1 }, { name: 'images', maxCount: 300 }]), async (req, res) => {
+app.post('/api/verify-batch', verificationRateLimit, upload.fields([{ name: 'csv', maxCount: 1 }, { name: 'images', maxCount: 300 }]), async (req, res) => {
   try {
     const uploads = (req.files ?? {}) as { csv?: Express.Multer.File[]; images?: Express.Multer.File[] };
     const csv = uploads.csv?.[0];
