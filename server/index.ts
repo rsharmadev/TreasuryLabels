@@ -1,4 +1,5 @@
 import { parse } from 'csv-parse/sync';
+import cors from 'cors';
 import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
@@ -13,6 +14,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 const fields: (keyof LabelFields)[] = ['brandName', 'classType', 'alcoholContent', 'netContents', 'producerNameAddress', 'countryOfOrigin', 'governmentWarning'];
 const productFields: (keyof LabelFields)[] = ['classType', 'alcoholContent', 'netContents'];
 
+app.use(cors());
 app.use(express.json());
 
 function asApplication(value: unknown): LabelFields {
