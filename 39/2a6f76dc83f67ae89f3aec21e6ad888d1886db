@@ -1,0 +1,21 @@
+client/src/main.tsx
+  s_828132ddd556e1::t_0faa21a9a987a3 54-57,101,109,112,162,164-165,167
+client/src/styles.css
+  s_828132ddd556e1::t_0faa21a9a987a3 27-29,45,58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "392a6f76dc83f67ae89f3aec21e6ad888d1886db",
+  "prompts": {},
+  "sessions": {
+    "s_828132ddd556e1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0362a-4cb4-7b73-bc92-4423de0768e9",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    }
+  }
+}
