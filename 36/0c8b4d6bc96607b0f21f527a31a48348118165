@@ -1,0 +1,19 @@
+server/index.ts
+  s_7de97b9578a413::t_49c44085765495 64,75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "360c8b4d6bc96607b0f21f527a31a48348118165",
+  "prompts": {},
+  "sessions": {
+    "s_7de97b9578a413": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03645-c890-72c1-bbc9-c4490957e3dd",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    }
+  }
+}
