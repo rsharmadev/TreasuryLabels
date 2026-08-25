@@ -51,6 +51,10 @@ function value(value: string | null) {
   return value || '—';
 }
 
+function MessageNotice({ message }: { message: Message }) {
+  return <p className={`message ${message.tone}`} role={message.tone === 'success' ? 'status' : 'alert'}>{message.text}</p>;
+}
+
 async function fileFromUrl(url: string, name: string, type: string) {
   const response = await fetch(url);
   if (!response.ok) throw new Error('Could not load sample file.');
@@ -94,6 +98,7 @@ function App() {
   const [sample, setSample] = useState(0);
   const [rows, setRows] = useState<Row[]>([]);
   const [message, setMessage] = useState<Message | null>(null);
+  const [sampleMessage, setSampleMessage] = useState<Message | null>(null);
   const [working, setWorking] = useState(false);
 
   const loadSample = async () => {
@@ -101,10 +106,10 @@ function App() {
     setApplication(selected.application);
     try {
       setImage(await fileFromUrl(selected.imageUrl, selected.imageName, 'image/png'));
-      setMessage({ text: 'Sample application and label image loaded.', tone: 'success' });
+      setSampleMessage({ text: 'Sample application and label image loaded.', tone: 'success' });
     } catch {
       setImage(null);
-      setMessage({ text: 'Sample application loaded, but its image could not be loaded.', tone: 'error' });
+      setSampleMessage({ text: 'Sample application loaded, but its image could not be loaded.', tone: 'error' });
     }
   };
 
@@ -154,12 +159,12 @@ function App() {
 
   return <main>
     <header><p className="eyebrow">Treasury labels</p><h1>Check a label</h1><p>Compare application details with what is printed on the bottle.</p></header>
-    <div className="mode" role="group" aria-label="Check type"><button className={mode === 'single' ? 'selected' : ''} onClick={() => { setMode('single'); setRows([]); setMessage(null); }}>One label</button><button className={mode === 'batch' ? 'selected' : ''} onClick={() => { setMode('batch'); setRows([]); setMessage(null); }}>Many labels</button></div>
+    <div className="mode" role="group" aria-label="Check type"><button className={mode === 'single' ? 'selected' : ''} onClick={() => { setMode('single'); setRows([]); setMessage(null); setSampleMessage(null); }}>One label</button><button className={mode === 'batch' ? 'selected' : ''} onClick={() => { setMode('batch'); setRows([]); setMessage(null); setSampleMessage(null); }}>Many labels</button></div>
     {mode === 'single' ? <section className="single">
-      <div><div className="sample"><label>Example application<select value={sample} onChange={(event) => setSample(Number(event.target.value))}>{samples.map((item, index) => <option value={index} key={index}>{item.application.brandName}</option>)}</select></label><button className="secondary" onClick={loadSample}>Load sample</button></div><h2>Application details</h2><div className="form">{applicationFields.map((field) => <label key={field}>{labels[field]}<input value={application[field] || ''} onChange={(event) => setApplication({ ...application, [field]: event.target.value || null })} /></label>)}</div></div>
-      <div className="upload"><h2>Label image</h2><label className="dropzone"><input type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} /><span>{image ? image.name : 'Choose an image'}</span><small>{image ? 'Click to replace' : 'JPG, PNG, or HEIC'}</small></label></div>
+      <div><div className="sample single-sample"><div className="sample-controls"><label>Example application<select value={sample} onChange={(event) => { setSample(Number(event.target.value)); setSampleMessage(null); }}>{samples.map((item, index) => <option value={index} key={index}>{item.application.brandName}</option>)}</select></label><button className="secondary" onClick={loadSample}>Load sample</button></div>{sampleMessage && <MessageNotice message={sampleMessage} />}</div><h2>Application details</h2><div className="form">{applicationFields.map((field) => <label key={field}>{labels[field]}<input value={application[field] || ''} onChange={(event) => setApplication({ ...application, [field]: event.target.value || null })} /></label>)}</div></div>
+      <div className="upload"><h2>Label image</h2><label className="dropzone"><input type="file" accept="image/*" onChange={(event) => { setImage(event.target.files?.[0] || null); setSampleMessage(null); }} /><span>{image ? image.name : 'Choose an image'}</span><small>{image ? 'Click to replace' : 'JPG, PNG, or HEIC'}</small></label></div>
     </section> : <section className="batch"><div className="sample batch-sample"><div className="sample-copy"><strong>Example batch</strong><small>One CSV and four label images</small></div><button className="secondary" onClick={loadBatchSample}>Load sample batch</button></div><h2>Upload files</h2><div className="batch-inputs"><label className="dropzone"><input type="file" accept=".csv,text/csv" onChange={(event) => setCsv(event.target.files?.[0] || null)} /><span>{csv ? csv.name : 'Choose application CSV'}</span><small>{csv ? 'Click to replace' : 'Must include applicationId'}</small></label><label className="dropzone"><input type="file" accept="image/*" multiple onChange={(event) => setImages(Array.from(event.target.files || []))} /><span>{images.length ? `${images.length} image${images.length === 1 ? '' : 's'} selected` : 'Choose label images'}</span><small>{images.length ? 'Click to replace' : 'Image filenames can be anything'}</small></label></div></section>}
-    {message && <p className={`message ${message.tone}`} role={message.tone === 'success' ? 'status' : 'alert'}>{message.text}</p>}
+    {message && <MessageNotice message={message} />}
     <button className="primary" disabled={working} onClick={mode === 'single' ? verifySingle : verifyBatch}>{working ? 'Checking labels…' : mode === 'single' ? 'Check label' : 'Check labels'}</button>
     <Results rows={rows} />
   </main>;
