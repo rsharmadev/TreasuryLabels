@@ -1,0 +1,19 @@
+server/extraction.ts
+  s_a41ef0e3c41aad::t_68cc201477e0ba 32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "6dddccdff8c59f12464e85957a81b70164a345aa",
+  "prompts": {},
+  "sessions": {
+    "s_a41ef0e3c41aad": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0243c-df0f-76c2-aace-9e7ef703ebfd",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rohit Sharma <kprsharma21@gmail.com>"
+    }
+  }
+}
